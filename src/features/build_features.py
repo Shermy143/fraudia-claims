@@ -88,7 +88,7 @@ def _features_comportamiento(df: pd.DataFrame) -> pd.DataFrame:
 
     # El proveedor en lista restrictiva ya viene marcado por las reglas,
     # pero lo replicamos como feature numérica para el modelo
-    from src.rules.fraud_rules import LISTA_RESTRICTIVA
+    from rules.fraud_rules import LISTA_RESTRICTIVA
     df["proveedor_lista_restrictiva"] = (
         df["beneficiario"].astype(str).str.upper().isin(LISTA_RESTRICTIVA)
     ).astype(int)

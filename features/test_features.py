@@ -8,9 +8,8 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 import pandas as pd
-# pyrefly: ignore [missing-import]
 import pytest   
-from src.features.build_features import (
+from features.build_features import (
     construir_features,
     obtener_matriz_modelo,
     FEATURES_MODELO,

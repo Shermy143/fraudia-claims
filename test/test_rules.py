@@ -8,7 +8,7 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 import pandas as pd
-from src.rules.fraud_rules import (
+from rules.fraud_rules import (
     calcular_score_reglas,
     señal_borde_vigencia,
     señal_reporte_tardio,

@@ -1,5 +1,30 @@
 # Modelo de Datos
 
+## Origen del Dataset
+
+El proyecto usa exclusivamente datos sintéticos. Ningún registro corresponde a personas, pólizas o siniestros reales.
+
+### Dataset base — `siniestros_sintetico.csv`
+
+Generado mediante una solicitud directa a Claude (Anthropic) usando como contexto el documento oficial del reto HackIAthon 2026, secciones 6 (estructura de tablas) y 7 (señales de fraude). Se indicó explícitamente generar 1000 registros respetando:
+
+- Las columnas y tipos de datos definidos en la sección 6.1 del documento
+- Una prevalencia de fraude de aproximadamente 14% (`etiqueta_fraude_simulada`)
+- Distribuciones realistas de montos, fechas y coberturas para seguros en Ecuador
+- Señales de fraude de la sección 7 presentes en los casos etiquetados (borde de vigencia, documentos incompletos, reporte tardío, etc.)
+
+El resultado fue un CSV de 1000 filas y 51 columnas, validado contra la estructura del documento antes de usarse para entrenamiento.
+
+### Dataset del organizador — `Evento_Datasets_Sinteticos_Fraude_500_v2.xlsx`
+
+Provisto directamente por los organizadores del hackathon. Contiene 500 registros en 5 hojas normalizadas (Siniestros, Pólizas, Asegurados, Proveedores, Documentos) y PDFs sintéticos de soporte (partes policiales, facturas, declaraciones de accidente).
+
+### Consideraciones sobre los datos sintéticos
+
+Al ser generados con IA, los patrones de fraude simulados pueden no reflejar exactamente la realidad operativa de la aseguradora. El sistema debe reentrenarse con datos reales confirmados antes de cualquier uso en producción.
+
+---
+
 ## Fuentes
 
 El dataset final (`siniestros_merged.csv`) combina tres fuentes:

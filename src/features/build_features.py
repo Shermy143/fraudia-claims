@@ -10,7 +10,7 @@ las señales del documento en features que el modelo pueda aprender.
 import pandas as pd
 import numpy as np
 
-from src.rules.fraud_rules import aplicar_a_dataframe
+from rules.fraud_rules import aplicar_a_dataframe
 
 
 # ---------------------------------------------------------------------------

@@ -15,7 +15,7 @@ import numpy as np
 import pandas as pd
 
 from models.fraud_model import cargar_modelo, RUTA_MODELO
-from src.features.build_features import construir_features, obtener_matriz_modelo, FEATURES_MODELO
+from features.build_features import construir_features, obtener_matriz_modelo, FEATURES_MODELO
 
 
 # ---------------------------------------------------------------------------
@@ -203,7 +203,7 @@ def explicar_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     Más eficiente que llamar explicar_siniestro() fila a fila
     porque calcula SHAP una sola vez sobre todo el DataFrame.
     """
-    from src.models.fraud_model import analizar_dataframe
+    from models.fraud_model import analizar_dataframe
 
     # Score y semáforo para todo el DF
     df_scored = analizar_dataframe(df)

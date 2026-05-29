@@ -18,8 +18,8 @@ import os
 import joblib
 import pandas as pd
 
-from src.features.build_features import construir_features, obtener_matriz_modelo
-from src.rules.fraud_rules import calcular_score_reglas
+from features.build_features import construir_features, obtener_matriz_modelo
+from rules.fraud_rules import calcular_score_reglas
 
 
 # ---------------------------------------------------------------------------

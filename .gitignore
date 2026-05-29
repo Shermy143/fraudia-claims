@@ -3,3 +3,5 @@ data/synthetic/DECLARACIÓN_DE_ACCIDENTE
 data/synthetic/FACTURAS_DOCS
 data/synthetic/PARTE_POLICIAL
 .env
+test/reporte_agente.json
+__pycache__/

@@ -414,7 +414,7 @@ def render_caso_nuevo(df_analizado: pd.DataFrame):
     st.markdown(
         f'<div style="background:{color_bg[nivel]};border-left:6px solid '
         f'{color_bd[nivel]};padding:16px;border-radius:6px;margin-bottom:12px">'
-        f'<h3 style="margin:0" color="#1a1a1a">{EMOJIS[nivel]} Score: {score:.1f} / 100 — Riesgo {nivel.upper()}</h3>'
+        f'<h3 style="margin:0;color:#1a1a1a">{EMOJIS[nivel]} Score: {score:.1f} / 100 — Riesgo {nivel.upper()}</h3>'
         f'<p style="margin:4px 0 0 0;color:#555">{resultado["nivel_riesgo"]}</p>'
         f'</div>',
         unsafe_allow_html=True

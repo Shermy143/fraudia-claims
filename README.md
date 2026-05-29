@@ -157,6 +157,10 @@ python -m pytest tests/ -v
 
 Todos los datos son **100% sintéticos**. Ningún dato corresponde a personas o siniestros reales.
 
+> **Nota:** Los PDFs de documentación (partes policiales, facturas, declaraciones)
+> no están en el repositorio por tamaño. Son provistos por el organizador del
+> hackathon en `data/synthetic/` y opcionales para ejecutar el sistema.
+
 ---
 
 ## Modelo de IA

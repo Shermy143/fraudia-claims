@@ -313,6 +313,144 @@ def render_agente(df: pd.DataFrame):
 
 
 # ---------------------------------------------------------------------------
+# Sección: Evaluar caso nuevo
+# ---------------------------------------------------------------------------
+
+def _casos_observados_proveedor(beneficiario: str, df: pd.DataFrame) -> int:
+    """Cuenta cuántos casos amarillo/rojo tiene ese proveedor en el dataset."""
+    if "beneficiario" not in df.columns or not beneficiario:
+        return 0
+    return int(
+        df[
+            (df["beneficiario"].astype(str).str.upper() == beneficiario.upper()) &
+            (df["semaforo"].isin(["rojo", "amarillo"]))
+        ].shape[0]
+    )
+
+
+def render_caso_nuevo(df_analizado: pd.DataFrame):
+    st.subheader("Evaluar caso nuevo")
+    st.caption("Ingresa los datos de un siniestro para calcular su score de riesgo en tiempo real.")
+
+    from datetime import date, timedelta
+    from explainability.explain_score import explicar_siniestro
+
+    with st.form("form_caso_nuevo"):
+        st.markdown("**Identificación**")
+        c1, c2, c3 = st.columns(3)
+        id_siniestro = c1.text_input("ID Siniestro", value="SIN-NUEVO-001")
+        ramo = c2.selectbox("Ramo", ["Vehículos", "Salud", "Vida", "Hogar", "Generales"])
+        cobertura = c3.selectbox(
+            "Cobertura",
+            ["Choque", "Robo", "Pérdida Total por Robo", "Responsabilidad Civil",
+             "Atención médica", "Incendio", "Daño", "Otro"]
+        )
+
+        st.markdown("**Fechas**")
+        c1, c2, c3, c4 = st.columns(4)
+        hoy = date.today()
+        fecha_inicio = c1.date_input("Inicio póliza",    value=hoy - timedelta(days=1))
+        fecha_fin    = c2.date_input("Fin póliza",       value=hoy + timedelta(days=364))
+        fecha_ocurr  = c3.date_input("Fecha ocurrencia", value=hoy)
+        fecha_rep    = c4.date_input("Fecha reporte",    value=hoy)
+
+        st.markdown("**Montos**")
+        c1, c2, c3 = st.columns(3)
+        monto_reclamado = c1.number_input("Monto reclamado ($)",  min_value=0.0, value=5000.0, step=100.0)
+        monto_estimado  = c2.number_input("Monto estimado ($)",   min_value=0.0, value=4500.0, step=100.0)
+        suma_asegurada  = c3.number_input("Suma asegurada ($)",   min_value=1.0, value=15000.0, step=500.0)
+
+        st.markdown("**Proveedor y asegurado**")
+        c1, c2 = st.columns(2)
+        beneficiario   = c1.text_input("Proveedor / Beneficiario", value="TALLER-001")
+        historial_prev = c2.number_input("Siniestros previos del asegurado", min_value=0, value=0, step=1)
+
+        st.markdown("**Documentación**")
+        c1, c2 = st.columns(2)
+        docs_completos = c1.selectbox("Documentos completos", ["Sí", "No"])
+        inconsistencia = c2.selectbox("Inconsistencia detectada", ["No", "Sí"])
+
+        submitted = st.form_submit_button("🔍 Calcular Score", use_container_width=True)
+
+    if not submitted:
+        return
+
+    dias_inicio  = (fecha_ocurr - fecha_inicio).days
+    dias_fin     = (fecha_fin   - fecha_ocurr).days
+    dias_reporte = (fecha_rep   - fecha_ocurr).days
+
+    fila = pd.Series({
+        "id_siniestro":                   id_siniestro,
+        "ramo":                           ramo,
+        "cobertura":                      cobertura,
+        "monto_reclamado":                float(monto_reclamado),
+        "monto_estimado":                 float(monto_estimado),
+        "suma_asegurada":                 float(suma_asegurada),
+        "dias_desde_inicio_poliza":       dias_inicio,
+        "dias_desde_fin_poliza":          dias_fin,
+        "dias_entre_ocurrencia_reporte":  dias_reporte,
+        "documentos_completos":           docs_completos,
+        "beneficiario":                   beneficiario,
+        "historial_siniestros_asegurado": int(historial_prev),
+        "inconsistencia_detectada":       inconsistencia,
+        "casos_observados_proveedor":     _casos_observados_proveedor(beneficiario, df_analizado),
+        "similitud_narrativa_max":        float("nan"),
+        "total_docs_tabla":               0 if docs_completos == "No" else 1,
+    })
+
+    with st.spinner("Calculando score..."):
+        try:
+            resultado = explicar_siniestro(fila)
+        except Exception as e:
+            st.error(f"Error al calcular el score: {e}")
+            return
+
+    nivel    = resultado["semaforo"]
+    score    = resultado["score_final"]
+    color_bg = {"rojo": "#fde8e8", "amarillo": "#fef9e7", "verde": "#eafaf1"}
+    color_bd = {"rojo": COLORES["rojo"], "amarillo": COLORES["amarillo"], "verde": COLORES["verde"]}
+
+    st.markdown("---")
+    st.markdown(
+        f'<div style="background:{color_bg[nivel]};border-left:6px solid '
+        f'{color_bd[nivel]};padding:16px;border-radius:6px;margin-bottom:12px">'
+        f'<h3 style="margin:0">{EMOJIS[nivel]} Score: {score:.1f} / 100 — Riesgo {nivel.upper()}</h3>'
+        f'<p style="margin:4px 0 0 0;color:#555">{resultado["nivel_riesgo"]}</p>'
+        f'</div>',
+        unsafe_allow_html=True
+    )
+
+    col_izq, col_der = st.columns(2)
+
+    with col_izq:
+        st.markdown("**Señales del motor de reglas:**")
+        alertas = resultado.get("alertas", [])
+        if alertas:
+            for a in alertas:
+                st.warning(f"⚠️ {a}")
+        else:
+            st.success("✅ Sin señales de alerta por reglas")
+
+        st.markdown("**Datos calculados:**")
+        st.markdown(f"- Días desde inicio de póliza: **{dias_inicio}**")
+        st.markdown(f"- Días hasta reporte: **{dias_reporte}**")
+        st.markdown(f"- Ratio monto/suma asegurada: **{monto_reclamado/suma_asegurada:.1%}**")
+        st.markdown(f"- Casos previos del proveedor: **{fila['casos_observados_proveedor']}**")
+
+    with col_der:
+        st.markdown("**Factores principales del modelo IA (SHAP):**")
+        factores = resultado.get("factores_shap", [])
+        if factores:
+            for f in factores:
+                st.markdown(f"- `{f['descripcion']}` → **+{f['shap']:.3f}**")
+        else:
+            st.info("Sin factores SHAP significativos")
+
+    st.markdown("**Texto de alerta para el analista:**")
+    st.code(resultado.get("texto_alerta", ""), language=None)
+
+
+# ---------------------------------------------------------------------------
 # App principal
 # ---------------------------------------------------------------------------
 
@@ -323,16 +461,18 @@ def main():
     if not verificar_prerequisitos():
         st.stop()
 
-    # Cargar y analizar
-    df_raw      = cargar_dataset()
+    df_raw       = cargar_dataset()
     df_analizado = analizar(df_raw)
 
-    # KPIs siempre visibles
     render_kpis(df_analizado)
     st.markdown("---")
 
-    # Tabs principales
-    tab1, tab2, tab3 = st.tabs(["📋 Bandeja de casos", "🔎 Detalle del caso", "🤖 Agente IA"])
+    tab1, tab2, tab3, tab4 = st.tabs([
+        "📋 Bandeja de casos",
+        "🔎 Detalle del caso",
+        "🧪 Evaluar caso nuevo",
+        "🤖 Agente IA",
+    ])
 
     with tab1:
         render_tabla(df_analizado)
@@ -341,6 +481,9 @@ def main():
         render_detalle(df_analizado)
 
     with tab3:
+        render_caso_nuevo(df_analizado)
+
+    with tab4:
         render_agente(df_analizado)
 
 

@@ -203,7 +203,7 @@ def explicar_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     Más eficiente que llamar explicar_siniestro() fila a fila
     porque calcula SHAP una sola vez sobre todo el DataFrame.
     """
-    from models.fraud_model import analizar_dataframe
+    from src.models.fraud_model import analizar_dataframe
 
     # Score y semáforo para todo el DF
     df_scored = analizar_dataframe(df)

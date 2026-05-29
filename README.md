@@ -193,7 +193,6 @@ Todos los datos son **100% sintéticos**. Ningún dato corresponde a personas o 
 ---
 
 ## Equipo
-
 hackIAthon 2026 — Reto Aseguradora del Sur
-Castro Illescas Jeremy Isaac
-Lara Jama Janis Odeth
+- Castro Illescas Jeremy Isaac
+- Lara Jama Janis Odeth

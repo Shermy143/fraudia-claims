@@ -15,7 +15,7 @@ import numpy as np
 import pandas as pd
 
 from models.fraud_model import cargar_modelo, RUTA_MODELO
-from features.build_features import construir_features, obtener_matriz_modelo, FEATURES_MODELO
+from src.features.build_features import construir_features, obtener_matriz_modelo, FEATURES_MODELO
 
 
 # ---------------------------------------------------------------------------

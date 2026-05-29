@@ -24,7 +24,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# pyrefly: ignore [missing-import]
 from src.explainability.explain_score import explicar_dataframe
 from src.ai_agent.claims_agent import ClaimsAgent, consulta_rapida
 

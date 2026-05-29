@@ -2,4 +2,4 @@ data/synthetic/Evento_Datasets_Sinteticos_Fraude_500_v2.xlsx
 data/synthetic/DECLARACIÓN_DE_ACCIDENTE
 data/synthetic/FACTURAS_DOCS
 data/synthetic/PARTE_POLICIAL
-
+.env

@@ -22,7 +22,6 @@ import re
 import pandas as pd
 
 
-
 # ---------------------------------------------------------------------------
 # Rutas — relativas a la raíz del repositorio
 # ---------------------------------------------------------------------------
@@ -70,9 +69,20 @@ def _escanear_pdfs(carpeta: str) -> dict[str, list[str]]:
 # ---------------------------------------------------------------------------
 
 def cargar_companera() -> pd.DataFrame:
-    """Carga el CSV base de la compañera y normaliza el ID de siniestro."""
+    """
+    Carga el CSV base de la compañera y normaliza el ID de siniestro.
+    También estandariza nombres de columna para que coincidan con
+    los esperados por fraud_rules.py y build_features.py.
+    """
     df = pd.read_csv(RUTA_CSV_COMPANERA)
     df["sin_norm"] = _normalizar_id_siniestro(df["id_siniestro"])
+
+    # Mapeo de nombres del CSV de la compañera al estándar del proyecto
+    mapeo_columnas = {
+        "documento_inconsistente": "inconsistencia_detectada",
+    }
+    df.rename(columns={k: v for k, v in mapeo_columnas.items() if k in df.columns}, inplace=True)
+
     print(f"[1] Compañera cargada:     {len(df):>5} registros | {len(df.columns)} columnas")
     return df
 
